@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Eu Te Amo ❤</title>
+  <style>
+    body {
+      background: linear-gradient(120deg, #ff9a9e 0%, #fad0c4 100%);
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 2rem;
+      color: #333;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-size: 3em;
+      margin-bottom: 0.5em;
+      color: #d10060;
+    }
+
+    p {
+      font-size: 1.5em;
+      max-width: 700px;
+      line-height: 1.6;
+    }
+
+    .heart {
+      font-size: 4em;
+      color: red;
+      margin-top: 1em;
+      animation: pulse 1.5s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.8; }
+    }
+
+    .floating-hearts {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .floating-hearts span {
+      position: absolute;
+      bottom: -50px;
+      font-size: 2rem;
+      color: red;
+      animation: float 8s linear infinite;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh) scale(1.5);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="floating-hearts">
+    <span style="left: 10%;">❤️</span>
+    <span style="left: 30%; animation-delay: 2s;">💖</span>
+    <span style="left: 50%; animation-delay: 4s;">💕</span>
+    <span style="left: 70%; animation-delay: 1s;">❤️</span>
+    <span style="left: 85%; animation-delay: 3s;">💘</span>
+  </div>
+
+  <h1>Eu te amo, meu amor ❤</h1>
+  <p>
+    Criei esse cantinho na internet só pra te lembrar o quanto você é especial pra mim.
+    Cada momento ao seu lado é um presente que a vida me deu. O seu sorriso ilumina tudo ao meu redor,
+    e é por isso que você é e sempre será o meu motivo de felicidade. Te amo com todo meu coração!
+  </p>
+  <div class="heart">❤</div>
+</body>
+</html>
