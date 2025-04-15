@@ -1,46 +1,130 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Loja Online</title>
-  <link rel="stylesheet" href="style.css"/>
-</head>
-<body>
-  <header>
-    <h1>Minha Loja</h1>
-    <div id="cart">
-      🛒 Carrinho: <span id="cart-count">0</span> itens
-    </div>
-  </header>
+cadastro-api/
+├── server.js
+├── models/
+│   └── User.js
+├── routes/
+│   └── auth.js
+├── controllers/
+│   └── authController.js
+├── .env
+├── package.json
+1️⃣ server.js
+js
+Copiar
+Editar
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const authRoutes = require('./routes/auth');
 
-  <main>
-    <div class="product">
-      <h2>Camisa Estilosa</h2>
-      <p>R$ 59,90</p>
-      <button onclick="addToCart('Camisa Estilosa', 59.90)">Comprar</button>
-    </div>
+const app = express();
+app.use(express.json());
 
-    <div class="product">
-      <h2>Tênis Esportivo</h2>
-      <p>R$ 199,90</p>
-      <button onclick="addToCart('Tênis Esportivo', 199.90)">Comprar</button>
-    </div>
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("✅ MongoDB conectado"))
+  .catch(err => console.error("Erro ao conectar no MongoDB:", err));
 
-    <div class="product">
-      <h2>Mochila Moderna</h2>
-      <p>R$ 89,90</p>
-      <button onclick="addToCart('Mochila Moderna', 89.90)">Comprar</button>
-    </div>
+app.use('/api/auth', authRoutes);
 
-    <section id="cart-items">
-      <h2>Itens no Carrinho</h2>
-      <ul id="cart-list"></ul>
-      <p>Total: R$ <span id="cart-total">0.00</span></p>
-    </section>
-  </main>
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`🚀 Servidor rodando na porta ${PORT}`));
+2️⃣ .env
+env
+Copiar
+Editar
+MONGO_URI=mongodb+srv://<usuario>:<senha>@seu-cluster.mongodb.net/cadastro
+JWT_SECRET=sua_chave_secreta_aqui
+Troque <usuario>, <senha> e seu-cluster com os dados do seu MongoDB Atlas
 
-  <script src="script.js"></script>
-</body>
-</html>
+3️⃣ models/User.js
+js
+Copiar
+Editar
+const mongoose = require('mongoose');
 
+const userSchema = new mongoose.Schema({
+  nome: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  senha: { type: String, required: true }
+});
+
+module.exports = mongoose.model('User', userSchema);
+4️⃣ routes/auth.js
+js
+Copiar
+Editar
+const express = require('express');
+const router = express.Router();
+const { registerUser, loginUser } = require('../controllers/authController');
+
+router.post('/register', registerUser);
+router.post('/login', loginUser);
+
+module.exports = router;
+5️⃣ controllers/authController.js
+js
+Copiar
+Editar
+const User = require('../models/User');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+exports.registerUser = async (req, res) => {
+  const { nome, email, senha } = req.body;
+  try {
+    const userExist = await User.findOne({ email });
+    if (userExist) return res.status(400).json({ msg: "Usuário já existe" });
+
+    const hashedSenha = await bcrypt.hash(senha, 10);
+    const novoUser = new User({ nome, email, senha: hashedSenha });
+
+    await novoUser.save();
+    res.status(201).json({ msg: "Usuário registrado com sucesso" });
+  } catch (err) {
+    res.status(500).json({ msg: "Erro no servidor" });
+  }
+};
+
+exports.loginUser = async (req, res) => {
+  const { email, senha } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ msg: "Usuário não encontrado" });
+
+    const isMatch = await bcrypt.compare(senha, user.senha);
+    if (!isMatch) return res.status(400).json({ msg: "Senha incorreta" });
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    res.json({ token, user: { nome: user.nome, email: user.email } });
+  } catch (err) {
+    res.status(500).json({ msg: "Erro no login" });
+  }
+};
+6️⃣ package.json (se quiser gerar com npm init -y, depois instale os pacotes)
+bash
+Copiar
+Editar
+npm init -y
+npm install express mongoose dotenv bcrypt jsonwebtoken
+7️⃣ Testando no Insomnia ou Postman:
+📥 Cadastro:
+POST: http://localhost:5000/api/auth/register
+
+json
+Copiar
+Editar
+{
+  "nome": "Maria Oliveira",
+  "email": "maria@email.com",
+  "senha": "123456"
+}
+🔐 Login:
+POST: http://localhost:5000/api/auth/login
+
+json
+Copiar
+Editar
+{
+  "email": "maria@email.com",
+  "senha": "123456"
+}
